@@ -1,51 +1,33 @@
 package com.github.captainrosco.BlackJack;
 
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class BlackJack{
 	private static Scanner input;
-	
+
 	public static void main(String[] args){
 		boolean quit = false;
 		boolean stay = false;
-		String answer;
 		int total = 0;
 		int bet = 5;
-		
+
 		input = new Scanner(System.in);
-		
-		do{
-			// setups and resets game
+
+		do{ // While quit is false.
 			Dealer dealer = new Dealer();
 			dealer.init();
 			dealer.get_PlayersHand();
 			dealer.get_DealersHand();
-			do{
-				
-				// checks if player wants to convert ACE's
-				if (dealer.aceCheck()) {
-					do{
-						System.out.println("\nMake Ace 11? (Y/N)");
-						answer = input.nextLine().trim();
-						if (answer.equalsIgnoreCase("y") || answer.equalsIgnoreCase("yes")) {
-							dealer.aceConvert();
-							dealer.get_PlayersHand();
-							break;
-						}
-						else if (answer.equalsIgnoreCase("n") || answer.equalsIgnoreCase("no")) {
-							break;
-						}
-						else{
-							System.out.println("Enter Y or N");
-						}
-					}
-					while (true);
+			if (dealer.aceCheck()) {
+				if (askPlayer("Make Ace 11? (Y/N): ", new String[] { "yes", "y" }, new String[] { "no", "n" })) {
+					dealer.aceConvert();
+					dealer.get_PlayersHand();
 				}
-				
-				// checks if player wants to hit or stay
-				System.out.print("\nWould you like to hit or stay? ");
-				answer = input.nextLine().trim();
-				if (answer.equalsIgnoreCase("hit")) {
+			}
+			do{ // While stay is false or player has not gone bust or gotten
+				// blackjack.
+				if (askPlayer("Would You Like To Hit Or Stay? (Hit/Stay): ", "hit", "stay")) {
 					dealer.playerHit();
 					dealer.get_PlayersHand();
 					if (dealer.playerTotal() > 21) {
@@ -60,20 +42,17 @@ public class BlackJack{
 					}
 					stay = false;
 				}
-				else if (answer.equalsIgnoreCase("stay")) {
-					stay = true;
-				}
 				else{
-					System.out.println("\nPlease enter hit or stay.");
+					stay = true;
 				}
 			}
 			while (!stay);
 			System.out.println("Your Total: " + dealer.playerTotal());
 			
-			// checks and plays dealer
+			// Check who won.
 			Check:
 			if (dealer.playerTotal() < 21) {
-				do{
+				do{ // While dealer total less than 17
 					dealer.dealerHit();
 					System.out.println("\nDealer Draws..");
 					dealer.get_DealersHand();
@@ -85,8 +64,6 @@ public class BlackJack{
 					}
 				}
 				while (dealer.dealerTotal() < 17);
-				
-				// checks to see who wins
 				if (dealer.playerTotal() > dealer.dealerTotal()) {
 					System.out.printf("\nYou win! Your Total %s. Dealer Total: %s", dealer.playerTotal(), dealer.dealerTotal());
 					total += bet;
@@ -101,27 +78,67 @@ public class BlackJack{
 					System.out.println("\nYou lost: $" + bet);
 				}
 			}
-			// checks if user wants to play again.
-			do{
-				System.out.print("\nPlay Again? (Y/N)");
-				answer = input.nextLine().trim();
-				if (answer.equalsIgnoreCase("no") || answer.equalsIgnoreCase("n")) {
-					quit = true;
-					break;
-				}
-				else if (answer.equalsIgnoreCase("yes") || answer.equalsIgnoreCase("y")) {
-					quit = false;
-					break;
-				}
-				else{
-					System.out.println("Please Enter Y or N");
-				}
+			if (askPlayer("Play Again? (Y/N): ", new String[] { "yes", "y" }, new String[] { "no", "n" })) {
+				quit = false;
 			}
-			while (true);
-			
+			else{
+				quit = true;
+			}
 		}
 		while (!quit);
-		// Total bets and ends game.
 		System.out.print("Your Winnings: $" + total);
+	}
+	
+	/**
+	 * Asks The User A Question And Returns True Or False Depending On The
+	 * Response. Will Continue Asking Until Users Response Equals One Of The
+	 * Possible Options.
+	 *
+	 * @param message
+	 *            - Question To Ask User.
+	 * @param trueOptions
+	 *            - Options That Will Return True.
+	 * @param falseOptions
+	 *            - Options That Will Return False.
+	 * @return true if trueOptions contains response.
+	 *         <p>
+	 *         false if falseOptions contains response.
+	 */
+	
+	public static boolean askPlayer(String message, String[] trueOptions, String[] falseOptions){
+		System.out.print(message);
+		String response = input.nextLine().trim();
+		for (String trueOption : trueOptions){
+			if (trueOption.equalsIgnoreCase(response)) {
+				return true;
+			}
+		}
+		for (String falseOption : falseOptions){
+			if (falseOption.equalsIgnoreCase(response)) {
+				return true;
+			}
+		}
+		System.out.println("Please Enter '" + Arrays.toString(trueOptions) + "' Or '" + Arrays.toString(falseOptions) + "'");
+		return askPlayer(message, trueOptions, falseOptions);
+	}
+	
+	/**
+	 * Asks The User A Question And Returns True Or False Depending On The
+	 * Response. Will Continue Asking Until Users Response Equals One Of The
+	 * Possible Options.
+	 *
+	 * @param message
+	 *            - Question To Ask User.
+	 * @param trueOption
+	 *            - Options That Will Return True.
+	 * @param falseOption
+	 *            - Option That Will Return False.
+	 * @return true if trueOption equals response.
+	 *         <p>
+	 *         false if falseOption equals response.
+	 */
+	
+	public static boolean askPlayer(String message, String trueOption, String falseOption){
+		return askPlayer(message, new String[] { trueOption }, new String[] { falseOption });
 	}
 }
