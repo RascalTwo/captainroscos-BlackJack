@@ -11,23 +11,22 @@ public class BlackJack{
 		boolean stay = false;
 		int total = 0;
 		int bet = 5;
-
+		
 		input = new Scanner(System.in);
 
 		do{ // While quit is false.
 			Dealer dealer = new Dealer();
-			dealer.init();
 			dealer.get_PlayersHand();
 			dealer.get_DealersHand();
 			if (dealer.aceCheck()) {
-				if (askPlayer("Make Ace 11? (Y/N): ", new String[] { "yes", "y" }, new String[] { "no", "n" })) {
+				if (askPlayer("\nMake Ace 11? (Y/N): ", new String[] { "yes", "y" }, new String[] { "no", "n" })) {
 					dealer.aceConvert();
 					dealer.get_PlayersHand();
 				}
 			}
 			do{ // While stay is false or player has not gone bust or gotten
 				// blackjack.
-				if (askPlayer("Would You Like To Hit Or Stay? (Hit/Stay): ", "hit", "stay")) {
+				if (askPlayer("\nWould You Like To Hit Or Stay? (Hit/Stay): ", "hit", "stay")) {
 					dealer.playerHit();
 					dealer.get_PlayersHand();
 					if (dealer.playerTotal() > 21) {
@@ -115,7 +114,7 @@ public class BlackJack{
 		}
 		for (String falseOption : falseOptions){
 			if (falseOption.equalsIgnoreCase(response)) {
-				return true;
+				return false;
 			}
 		}
 		System.out.println("Please Enter '" + Arrays.toString(trueOptions) + "' Or '" + Arrays.toString(falseOptions) + "'");
